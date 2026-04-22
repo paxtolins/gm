@@ -655,13 +655,15 @@ footer {
     }
 
 }
-.control-button img {
+.control-button img,
+.control-button svg {
     transition: transform 0.4s ease;
     width: 24px;
     height: 24px;
 }
 
-.control-button:hover img {
+.control-button:hover img,
+.control-button:hover svg {
     transform: rotate(40deg);
 }
 
@@ -826,7 +828,10 @@ footer {
                 </button>
 
                 <button id="settings" class="control-button" title="Settings!">
-                    <img src="setting.png" alt="settings">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06A1.65 1.65 0 0 0 15 19.4a1.65 1.65 0 0 0-1 .6 1.65 1.65 0 0 1-2 0 1.65 1.65 0 0 0-1-.6 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-.6-1 1.65 1.65 0 0 1 0-2 1.65 1.65 0 0 0 .6-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-.6 1.65 1.65 0 0 1 2 0 1.65 1.65 0 0 0 1 .6 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.24.33.41.71.5 1.1.09.4.09.81 0 1.21-.09.39-.26.77-.5 1.1a1.65 1.65 0 0 0 0 1.6z"></path>
+                    </svg>
                 </button>
             </div>
         </div>
@@ -888,6 +893,7 @@ footer {
             <a href="#" onclick="loadDMCA(); return false;">DMCA</a>
             <a href="#" onclick="showContact(); return false;">Contact</a>
             <a href="#" onclick="loadPrivacy(); return false;">Privacy Policy</a>
+            <a href="#" onclick="downloadLocalSitePackage(); return false;">Download Site (Local)</a>
             <a href="javascript:saveData()">Export Data</a>
             <a href="#" onclick="document.getElementById('importData').click(); return false;">Import Data</a>
             <input type="file" id="importData" style="display: none;" onchange="loadData(event)">
@@ -902,6 +908,7 @@ const searchBar = document.getElementById('searchBar');
 const sortOptions = document.getElementById('sortOptions');
 const filterOptions = document.getElementById('filterOptions');
 const ZONE_SAVE_PREFIX = "gnmath-zone-progress-";
+const APP_STORAGE_PREFIXES = ["gnmath-"];
 // https://www.jsdelivr.com/tools/purge
 const zonesurls = [
     "https://cdn.jsdelivr.net/gh/freebuisness/assets@main/zones.json",
@@ -1285,6 +1292,45 @@ function fullscreenZone() {
     }
 }
 
+async function downloadLocalSitePackage() {
+    try {
+        alert("Preparing a full local package. This can take a while.");
+        const indexHTML = document.documentElement.outerHTML;
+        const localZones = zones.filter(zone => !zone.url.startsWith("http"));
+        const games = {};
+
+        for (const zone of localZones) {
+            const zoneURL = zone.url.replace("{COVER_URL}", coverURL).replace("{HTML_URL}", htmlURL);
+            try {
+                games[zone.id] = await fetch(zoneURL + "?t=" + Date.now()).then(res => res.text());
+            } catch (error) {
+                games[zone.id] = `<!-- Failed to fetch ${zoneURL}: ${error} -->`;
+            }
+        }
+
+        const packageFile = {
+            generatedAt: new Date().toISOString(),
+            zones,
+            indexHTML,
+            games
+        };
+
+        const blob = new Blob([JSON.stringify(packageFile)], { type: "application/json" });
+        const downloadURL = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = downloadURL;
+        a.download = `gn-math-local-package-${Date.now()}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(downloadURL);
+        alert("Local site package downloaded.");
+    } catch (error) {
+        console.error(error);
+        alert("Failed to create local site package.");
+    }
+}
+
 function getZoneSaveKey() {
     const zoneId = document.getElementById('zoneId').textContent;
     if (!zoneId) return null;
@@ -1302,6 +1348,7 @@ function saveZoneProgress() {
 
         for (let i = 0; i < gameWindow.localStorage.length; i++) {
             const key = gameWindow.localStorage.key(i);
+            if (APP_STORAGE_PREFIXES.some(prefix => key.startsWith(prefix))) continue;
             storageData.localStorage[key] = gameWindow.localStorage.getItem(key);
         }
         for (let i = 0; i < gameWindow.sessionStorage.length; i++) {
@@ -1337,10 +1384,12 @@ function loadZoneProgress() {
 
         const data = JSON.parse(raw);
         const gameWindow = zoneFrame.contentWindow;
-        gameWindow.localStorage.clear();
-        gameWindow.sessionStorage.clear();
-
+        const existingKeys = Object.keys(data.localStorage || {});
+        existingKeys.forEach(key => gameWindow.localStorage.removeItem(key));
         Object.entries(data.localStorage || {}).forEach(([key, value]) => gameWindow.localStorage.setItem(key, value));
+
+        const sessionKeys = Object.keys(data.sessionStorage || {});
+        sessionKeys.forEach(key => gameWindow.sessionStorage.removeItem(key));
         Object.entries(data.sessionStorage || {}).forEach(([key, value]) => gameWindow.sessionStorage.setItem(key, value));
 
         if (activeZone) {
@@ -1360,12 +1409,13 @@ function resetZoneProgress() {
             alert("No game selected.");
             return;
         }
-        localStorage.removeItem(saveKey);
-
-        if (zoneFrame?.contentWindow) {
-            zoneFrame.contentWindow.localStorage.clear();
-            zoneFrame.contentWindow.sessionStorage.clear();
+        const raw = localStorage.getItem(saveKey);
+        if (raw && zoneFrame?.contentWindow) {
+            const data = JSON.parse(raw);
+            Object.keys(data.localStorage || {}).forEach(key => zoneFrame.contentWindow.localStorage.removeItem(key));
+            Object.keys(data.sessionStorage || {}).forEach(key => zoneFrame.contentWindow.sessionStorage.removeItem(key));
         }
+        localStorage.removeItem(saveKey);
 
         if (activeZone) {
             openZone(activeZone);
