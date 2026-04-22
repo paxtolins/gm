@@ -894,6 +894,7 @@ footer {
             <a href="#" onclick="showContact(); return false;">Contact</a>
             <a href="#" onclick="loadPrivacy(); return false;">Privacy Policy</a>
             <a href="#" onclick="downloadLocalSitePackage(); return false;">Download Site (Local)</a>
+            <a href="#" onclick="downloadIndexHTML(); return false;">Download index.html</a>
             <a href="javascript:saveData()">Export Data</a>
             <a href="#" onclick="document.getElementById('importData').click(); return false;">Import Data</a>
             <input type="file" id="importData" style="display: none;" onchange="loadData(event)">
@@ -1328,6 +1329,24 @@ async function downloadLocalSitePackage() {
     } catch (error) {
         console.error(error);
         alert("Failed to create local site package.");
+    }
+}
+
+function downloadIndexHTML() {
+    try {
+        const htmlDoc = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+        const blob = new Blob([htmlDoc], { type: "text/html;charset=utf-8" });
+        const downloadURL = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = downloadURL;
+        a.download = "index.html";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(downloadURL);
+    } catch (error) {
+        console.error(error);
+        alert("Failed to download index.html");
     }
 }
 
