@@ -862,6 +862,9 @@ footer {
             <div class="zone-controls">
                 <button onclick="fullscreenZone()">Fullscreen</button>
                 <button onclick="aboutBlank()">Open in New Tab</button>
+                <button onclick="saveZoneProgress()">Save Progress</button>
+                <button onclick="loadZoneProgress()">Load Progress</button>
+                <button onclick="resetZoneProgress()">Reset Progress</button>
                 <button onclick="downloadZone()">Download</button>
                 <button onclick="closeZone()">Close</button>
             </div>
@@ -898,6 +901,7 @@ let zoneFrame = document.getElementById('zoneFrame');
 const searchBar = document.getElementById('searchBar');
 const sortOptions = document.getElementById('sortOptions');
 const filterOptions = document.getElementById('filterOptions');
+const ZONE_SAVE_PREFIX = "gnmath-zone-progress-";
 // https://www.jsdelivr.com/tools/purge
 const zonesurls = [
     "https://cdn.jsdelivr.net/gh/freebuisness/assets@main/zones.json",
@@ -910,6 +914,7 @@ const coverURL = "https://cdn.jsdelivr.net/gh/freebuisness/covers@main";
 const htmlURL = "https://cdn.jsdelivr.net/gh/freebuisness/html@main";
 let zones = [];
 let popularityData = {};
+let activeZone = null;
 const featuredContainer = document.getElementById('featuredZones');
 function toTitleCase(str) {
   return str.replace(
@@ -1196,6 +1201,7 @@ function filterZones() {
 }
 
 function openZone(file) {
+    activeZone = file;
     if (file.url.startsWith("http")) {
         window.open(file.url, "_blank");
     } else {
@@ -1239,6 +1245,7 @@ function aboutBlank() {
 }
 
 function closeZone() {
+    activeZone = null;
     zoneViewer.hidden = false;
     zoneViewer.style.display = "none";
     zoneViewer.removeChild(zoneFrame);
@@ -1275,6 +1282,98 @@ function fullscreenZone() {
         zoneFrame.webkitRequestFullscreen();
     } else if (zoneFrame.msRequestFullscreen) {
         zoneFrame.msRequestFullscreen();
+    }
+}
+
+function getZoneSaveKey() {
+    const zoneId = document.getElementById('zoneId').textContent;
+    if (!zoneId) return null;
+    return `${ZONE_SAVE_PREFIX}${zoneId}`;
+}
+
+function saveZoneProgress() {
+    try {
+        if (!zoneFrame?.contentWindow) {
+            alert("Open a game first.");
+            return;
+        }
+        const storageData = { localStorage: {}, sessionStorage: {}, savedAt: Date.now() };
+        const gameWindow = zoneFrame.contentWindow;
+
+        for (let i = 0; i < gameWindow.localStorage.length; i++) {
+            const key = gameWindow.localStorage.key(i);
+            storageData.localStorage[key] = gameWindow.localStorage.getItem(key);
+        }
+        for (let i = 0; i < gameWindow.sessionStorage.length; i++) {
+            const key = gameWindow.sessionStorage.key(i);
+            storageData.sessionStorage[key] = gameWindow.sessionStorage.getItem(key);
+        }
+
+        const saveKey = getZoneSaveKey();
+        if (!saveKey) {
+            alert("No game selected.");
+            return;
+        }
+        localStorage.setItem(saveKey, JSON.stringify(storageData));
+        alert("Progress saved!");
+    } catch (error) {
+        console.error(error);
+        alert("Could not save this game's progress.");
+    }
+}
+
+function loadZoneProgress() {
+    try {
+        if (!zoneFrame?.contentWindow) {
+            alert("Open a game first.");
+            return;
+        }
+        const saveKey = getZoneSaveKey();
+        const raw = saveKey ? localStorage.getItem(saveKey) : null;
+        if (!raw) {
+            alert("No saved progress found for this game.");
+            return;
+        }
+
+        const data = JSON.parse(raw);
+        const gameWindow = zoneFrame.contentWindow;
+        gameWindow.localStorage.clear();
+        gameWindow.sessionStorage.clear();
+
+        Object.entries(data.localStorage || {}).forEach(([key, value]) => gameWindow.localStorage.setItem(key, value));
+        Object.entries(data.sessionStorage || {}).forEach(([key, value]) => gameWindow.sessionStorage.setItem(key, value));
+
+        if (activeZone) {
+            openZone(activeZone);
+        }
+        alert("Progress loaded!");
+    } catch (error) {
+        console.error(error);
+        alert("Could not load saved progress.");
+    }
+}
+
+function resetZoneProgress() {
+    try {
+        const saveKey = getZoneSaveKey();
+        if (!saveKey) {
+            alert("No game selected.");
+            return;
+        }
+        localStorage.removeItem(saveKey);
+
+        if (zoneFrame?.contentWindow) {
+            zoneFrame.contentWindow.localStorage.clear();
+            zoneFrame.contentWindow.sessionStorage.clear();
+        }
+
+        if (activeZone) {
+            openZone(activeZone);
+        }
+        alert("Progress reset!");
+    } catch (error) {
+        console.error(error);
+        alert("Could not reset saved progress.");
     }
 }
 
