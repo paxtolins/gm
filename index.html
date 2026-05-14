@@ -102,6 +102,42 @@
     --gradient-surface: linear-gradient(135deg, #1e293b 0%, #334155 100%);
 }
 
+.theme-red {
+    --primary: #fc2651;
+    --primary-hover: #e91e47;
+    --primary-light: rgba(252, 38, 81, 0.1);
+    --primary-lighter: rgba(252, 38, 81, 0.05);
+    --shadow-glow: 0 0 20px rgba(252, 38, 81, 0.3);
+    --gradient-primary: linear-gradient(135deg, #fc2651 0%, #e91e47 100%);
+}
+
+.theme-orange {
+    --primary: #f97316;
+    --primary-hover: #ea580c;
+    --primary-light: rgba(249, 115, 22, 0.15);
+    --primary-lighter: rgba(249, 115, 22, 0.08);
+    --shadow-glow: 0 0 20px rgba(249, 115, 22, 0.3);
+    --gradient-primary: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+}
+
+.theme-blue {
+    --primary: #3b82f6;
+    --primary-hover: #2563eb;
+    --primary-light: rgba(59, 130, 246, 0.15);
+    --primary-lighter: rgba(59, 130, 246, 0.08);
+    --shadow-glow: 0 0 20px rgba(59, 130, 246, 0.3);
+    --gradient-primary: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+}
+
+.theme-green {
+    --primary: #22c55e;
+    --primary-hover: #16a34a;
+    --primary-light: rgba(34, 197, 94, 0.15);
+    --primary-lighter: rgba(34, 197, 94, 0.08);
+    --shadow-glow: 0 0 20px rgba(34, 197, 94, 0.3);
+    --gradient-primary: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+}
+
 * {
     box-sizing: border-box;
 }
@@ -619,13 +655,15 @@ footer {
     }
 
 }
-.control-button img {
+.control-button img,
+.control-button svg {
     transition: transform 0.4s ease;
     width: 24px;
     height: 24px;
 }
 
-.control-button:hover img {
+.control-button:hover img,
+.control-button:hover svg {
     transform: rotate(40deg);
 }
 
@@ -680,6 +718,56 @@ footer {
 .settings-button:active {
     transform: translateY(0);
     box-shadow: var(--shadow-sm);
+}
+
+.theme-options {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(120px, 1fr));
+    gap: 0.75rem;
+}
+
+.theme-button {
+    border: 2px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    color: var(--text);
+    padding: 0.75rem;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.theme-button:hover {
+    border-color: var(--primary);
+    transform: translateY(-1px);
+}
+
+.theme-button.active {
+    border-color: var(--primary);
+    background: var(--primary-light);
+    box-shadow: var(--shadow-glow);
+}
+
+.cloak-presets {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(120px, 1fr));
+    gap: 0.6rem;
+}
+
+.cloak-preset-button {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 0.65rem;
+    background: var(--surface);
+    color: var(--text);
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.cloak-preset-button:hover {
+    border-color: var(--primary);
+    background: var(--primary-light);
 }
 
 .info-button {
@@ -740,7 +828,10 @@ footer {
                 </button>
 
                 <button id="settings" class="control-button" title="Settings!">
-                    <img src="setting.png" alt="settings">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06A1.65 1.65 0 0 0 15 19.4a1.65 1.65 0 0 0-1 .6 1.65 1.65 0 0 1-2 0 1.65 1.65 0 0 0-1-.6 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-.6-1 1.65 1.65 0 0 1 0-2 1.65 1.65 0 0 0 .6-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-.6 1.65 1.65 0 0 1 2 0 1.65 1.65 0 0 0 1 .6 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.24.33.41.71.5 1.1.09.4.09.81 0 1.21-.09.39-.26.77-.5 1.1a1.65 1.65 0 0 0 0 1.6z"></path>
+                    </svg>
                 </button>
             </div>
         </div>
@@ -776,6 +867,9 @@ footer {
             <div class="zone-controls">
                 <button onclick="fullscreenZone()">Fullscreen</button>
                 <button onclick="aboutBlank()">Open in New Tab</button>
+                <button onclick="saveZoneProgress()">Save Progress</button>
+                <button onclick="loadZoneProgress()">Load Progress</button>
+                <button onclick="resetZoneProgress()">Reset Progress</button>
                 <button onclick="downloadZone()">Download</button>
                 <button onclick="closeZone()">Close</button>
             </div>
@@ -799,6 +893,8 @@ footer {
             <a href="#" onclick="loadDMCA(); return false;">DMCA</a>
             <a href="#" onclick="showContact(); return false;">Contact</a>
             <a href="#" onclick="loadPrivacy(); return false;">Privacy Policy</a>
+            <a href="#" onclick="downloadLocalSitePackage(); return false;">Download Site (Local)</a>
+            <a href="#" onclick="downloadIndexHTML(); return false;">Download index.html</a>
             <a href="javascript:saveData()">Export Data</a>
             <a href="#" onclick="document.getElementById('importData').click(); return false;">Import Data</a>
             <input type="file" id="importData" style="display: none;" onchange="loadData(event)">
@@ -812,6 +908,8 @@ let zoneFrame = document.getElementById('zoneFrame');
 const searchBar = document.getElementById('searchBar');
 const sortOptions = document.getElementById('sortOptions');
 const filterOptions = document.getElementById('filterOptions');
+const ZONE_SAVE_PREFIX = "gnmath-zone-progress-";
+const APP_STORAGE_PREFIXES = ["gnmath-"];
 // https://www.jsdelivr.com/tools/purge
 const zonesurls = [
     "https://cdn.jsdelivr.net/gh/freebuisness/assets@main/zones.json",
@@ -824,6 +922,7 @@ const coverURL = "https://cdn.jsdelivr.net/gh/freebuisness/covers@main";
 const htmlURL = "https://cdn.jsdelivr.net/gh/freebuisness/html@main";
 let zones = [];
 let popularityData = {};
+let activeZone = null;
 const featuredContainer = document.getElementById('featuredZones');
 function toTitleCase(str) {
   return str.replace(
@@ -1110,6 +1209,7 @@ function filterZones() {
 }
 
 function openZone(file) {
+    activeZone = file;
     if (file.url.startsWith("http")) {
         window.open(file.url, "_blank");
     } else {
@@ -1153,6 +1253,7 @@ function aboutBlank() {
 }
 
 function closeZone() {
+    activeZone = null;
     zoneViewer.hidden = false;
     zoneViewer.style.display = "none";
     zoneViewer.removeChild(zoneFrame);
@@ -1189,6 +1290,159 @@ function fullscreenZone() {
         zoneFrame.webkitRequestFullscreen();
     } else if (zoneFrame.msRequestFullscreen) {
         zoneFrame.msRequestFullscreen();
+    }
+}
+
+async function downloadLocalSitePackage() {
+    try {
+        alert("Preparing a full local package. This can take a while.");
+        const indexHTML = document.documentElement.outerHTML;
+        const localZones = zones.filter(zone => !zone.url.startsWith("http"));
+        const games = {};
+
+        for (const zone of localZones) {
+            const zoneURL = zone.url.replace("{COVER_URL}", coverURL).replace("{HTML_URL}", htmlURL);
+            try {
+                games[zone.id] = await fetch(zoneURL + "?t=" + Date.now()).then(res => res.text());
+            } catch (error) {
+                games[zone.id] = `<!-- Failed to fetch ${zoneURL}: ${error} -->`;
+            }
+        }
+
+        const packageFile = {
+            generatedAt: new Date().toISOString(),
+            zones,
+            indexHTML,
+            games
+        };
+
+        const blob = new Blob([JSON.stringify(packageFile)], { type: "application/json" });
+        const downloadURL = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = downloadURL;
+        a.download = `gn-math-local-package-${Date.now()}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(downloadURL);
+        alert("Local site package downloaded.");
+    } catch (error) {
+        console.error(error);
+        alert("Failed to create local site package.");
+    }
+}
+
+function downloadIndexHTML() {
+    try {
+        const htmlDoc = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+        const blob = new Blob([htmlDoc], { type: "text/html;charset=utf-8" });
+        const downloadURL = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = downloadURL;
+        a.download = "index.html";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(downloadURL);
+    } catch (error) {
+        console.error(error);
+        alert("Failed to download index.html");
+    }
+}
+
+function getZoneSaveKey() {
+    const zoneId = document.getElementById('zoneId').textContent;
+    if (!zoneId) return null;
+    return `${ZONE_SAVE_PREFIX}${zoneId}`;
+}
+
+function saveZoneProgress() {
+    try {
+        if (!zoneFrame?.contentWindow) {
+            alert("Open a game first.");
+            return;
+        }
+        const storageData = { localStorage: {}, sessionStorage: {}, savedAt: Date.now() };
+        const gameWindow = zoneFrame.contentWindow;
+
+        for (let i = 0; i < gameWindow.localStorage.length; i++) {
+            const key = gameWindow.localStorage.key(i);
+            if (APP_STORAGE_PREFIXES.some(prefix => key.startsWith(prefix))) continue;
+            storageData.localStorage[key] = gameWindow.localStorage.getItem(key);
+        }
+        for (let i = 0; i < gameWindow.sessionStorage.length; i++) {
+            const key = gameWindow.sessionStorage.key(i);
+            storageData.sessionStorage[key] = gameWindow.sessionStorage.getItem(key);
+        }
+
+        const saveKey = getZoneSaveKey();
+        if (!saveKey) {
+            alert("No game selected.");
+            return;
+        }
+        localStorage.setItem(saveKey, JSON.stringify(storageData));
+        alert("Progress saved!");
+    } catch (error) {
+        console.error(error);
+        alert("Could not save this game's progress.");
+    }
+}
+
+function loadZoneProgress() {
+    try {
+        if (!zoneFrame?.contentWindow) {
+            alert("Open a game first.");
+            return;
+        }
+        const saveKey = getZoneSaveKey();
+        const raw = saveKey ? localStorage.getItem(saveKey) : null;
+        if (!raw) {
+            alert("No saved progress found for this game.");
+            return;
+        }
+
+        const data = JSON.parse(raw);
+        const gameWindow = zoneFrame.contentWindow;
+        const existingKeys = Object.keys(data.localStorage || {});
+        existingKeys.forEach(key => gameWindow.localStorage.removeItem(key));
+        Object.entries(data.localStorage || {}).forEach(([key, value]) => gameWindow.localStorage.setItem(key, value));
+
+        const sessionKeys = Object.keys(data.sessionStorage || {});
+        sessionKeys.forEach(key => gameWindow.sessionStorage.removeItem(key));
+        Object.entries(data.sessionStorage || {}).forEach(([key, value]) => gameWindow.sessionStorage.setItem(key, value));
+
+        if (activeZone) {
+            openZone(activeZone);
+        }
+        alert("Progress loaded!");
+    } catch (error) {
+        console.error(error);
+        alert("Could not load saved progress.");
+    }
+}
+
+function resetZoneProgress() {
+    try {
+        const saveKey = getZoneSaveKey();
+        if (!saveKey) {
+            alert("No game selected.");
+            return;
+        }
+        const raw = localStorage.getItem(saveKey);
+        if (raw && zoneFrame?.contentWindow) {
+            const data = JSON.parse(raw);
+            Object.keys(data.localStorage || {}).forEach(key => zoneFrame.contentWindow.localStorage.removeItem(key));
+            Object.keys(data.sessionStorage || {}).forEach(key => zoneFrame.contentWindow.sessionStorage.removeItem(key));
+        }
+        localStorage.removeItem(saveKey);
+
+        if (activeZone) {
+            openZone(activeZone);
+        }
+        alert("Progress reset!");
+    } catch (error) {
+        console.error(error);
+        alert("Could not reset saved progress.");
     }
 }
 
@@ -1396,8 +1650,41 @@ async function saveData() {
     reader.readAsText(file);
   }
 
+const AVAILABLE_THEMES = ["red", "orange", "blue", "green"];
+
+function applySavedSettings() {
+    const savedMode = localStorage.getItem("gnmath-mode");
+    if (savedMode === "light") {
+        document.body.classList.remove("dark-mode");
+    } else {
+        document.body.classList.add("dark-mode");
+    }
+
+    const savedTheme = localStorage.getItem("gnmath-theme") || "red";
+    setTheme(savedTheme);
+}
+
 function darkMode() {
     document.body.classList.toggle("dark-mode");
+    const mode = document.body.classList.contains("dark-mode") ? "dark" : "light";
+    localStorage.setItem("gnmath-mode", mode);
+}
+
+function setTheme(themeName) {
+    const safeTheme = AVAILABLE_THEMES.includes(themeName) ? themeName : "red";
+    document.body.classList.remove(...AVAILABLE_THEMES.map(theme => `theme-${theme}`));
+    document.body.classList.add(`theme-${safeTheme}`);
+    localStorage.setItem("gnmath-theme", safeTheme);
+    updateThemeButtons();
+}
+
+function updateThemeButtons() {
+    const activeTheme = localStorage.getItem("gnmath-theme") || "red";
+    const buttons = document.querySelectorAll("[data-theme-option]");
+    buttons.forEach(button => {
+        const isActive = button.dataset.themeOption === activeTheme;
+        button.classList.toggle("active", isActive);
+    });
 }
 
 function cloakIcon(url) {
@@ -1418,16 +1705,44 @@ function cloakName(string) {
     document.title = string;
 }
 
+const TAB_CLOAK_PRESETS = {
+    canvas: {
+        name: "Dashboard",
+        icon: "https://du11hjcvx0uqb.cloudfront.net/dist/images/favicon-e10d657a73.ico"
+    },
+    googledocs: {
+        name: "Google Docs",
+        icon: "https://ssl.gstatic.com/docs/documents/images/kix-favicon7.ico"
+    }
+};
+
+function applyTabCloakPreset(presetName) {
+    const preset = TAB_CLOAK_PRESETS[presetName];
+    if (!preset) return;
+    cloakName(preset.name);
+    cloakIcon(preset.icon);
+    const titleInput = document.getElementById("tab-cloak-title-input");
+    const iconInput = document.getElementById("tab-cloak-icon-input");
+    if (titleInput) titleInput.value = preset.name;
+    if (iconInput) iconInput.value = preset.icon;
+}
+
 function tabCloak() {
     closePopup();
     document.getElementById('popupTitle').textContent = "Tab Cloak";
     const popupBody = document.getElementById('popupBody');
     popupBody.innerHTML = `
-        <label for="tab-cloak-textbox" style="font-weight: bold;">Set Tab Title:</label><br>
-        <input type="text" id="tab-cloak-textbox" placeholder="Enter new tab name..." oninput="cloakName(this.value)">
+        <label style="font-weight: bold;">Quick Presets:</label><br>
+        <div class="cloak-presets">
+            <button class="cloak-preset-button" onclick="applyTabCloakPreset('canvas')">Canvas</button>
+            <button class="cloak-preset-button" onclick="applyTabCloakPreset('googledocs')">Google Docs</button>
+        </div>
+        <br><br>
+        <label for="tab-cloak-title-input" style="font-weight: bold;">Set Tab Title:</label><br>
+        <input type="text" id="tab-cloak-title-input" placeholder="Enter new tab name..." oninput="cloakName(this.value)">
         <br><br><br><br>
-        <label for="tab-cloak-textbox" style="font-weight: bold;">Set Tab Icon:</label><br>
-        <input type="text" id="tab-cloak-textbox" placeholder="Enter new tab icon..." oninput='cloakIcon(this.value)'>
+        <label for="tab-cloak-icon-input" style="font-weight: bold;">Set Tab Icon:</label><br>
+        <input type="text" id="tab-cloak-icon-input" placeholder="Enter new tab icon URL..." oninput='cloakIcon(this.value)'>
         <br><br><br>
     `;
     popupBody.contentEditable = false;
@@ -1441,11 +1756,20 @@ settings.addEventListener('click', () => {
     popupBody.innerHTML = `
     <button class="settings-button" onclick="darkMode()">Toggle Dark Mode</button>
     <br><br>
+    <div style="font-weight: 700; margin-bottom: 0.5rem;">Theme Color</div>
+    <div class="theme-options">
+        <button class="theme-button" data-theme-option="red" onclick="setTheme('red')">Red</button>
+        <button class="theme-button" data-theme-option="orange" onclick="setTheme('orange')">Orange</button>
+        <button class="theme-button" data-theme-option="blue" onclick="setTheme('blue')">Blue</button>
+        <button class="theme-button" data-theme-option="green" onclick="setTheme('green')">Green</button>
+    </div>
+    <br>
     <button class="settings-button" onclick="tabCloak()">Tab Cloak</button>
     <br>
     `;
     popupBody.contentEditable = false;
     document.getElementById('popupOverlay').style.display = "flex";
+    updateThemeButtons();
 });
 
 
@@ -1632,6 +1956,7 @@ function showZoneInfo() {
 function closePopup() {
     document.getElementById('popupOverlay').style.display = "none";
 }
+applySavedSettings();
 listZones();
 
 HTMLCanvasElement.prototype.toDataURL = function (...args) {
